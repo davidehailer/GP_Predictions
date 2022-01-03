@@ -1,2 +1,2 @@
 # GP_Predictions
-Using Gaussian Processes to predict bond recovery rate
+The model is a Gaussian Process using Power Expectation Propagation from https://arxiv.org/abs/1605.07066.

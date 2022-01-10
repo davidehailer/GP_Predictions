@@ -12,7 +12,7 @@ full_data = pd.read_csv("Data_clean.csv")
 #preprocessing for modelling
 y = full_data["RecRate"]
 X = full_data.iloc[:,1:192]
-np.random.seed(22)
+#np.random.seed(22)
 #########################
 #Fixed Window 2001-2012##
 #########################
@@ -25,11 +25,11 @@ def fixed_pred(M,alpha,lengthscale,variance,lik_noise_var):
     y_fixed_train = np.c_[y[ind_training].values]
     y_fixed_test = y[ind_test].values
     # fit the Model
-    np.random.seed(22)
+    #np.random.seed(22)
     a = np.random.randint(0, np.shape(X_fixed_train)[0], size=M)
     Z = np.c_[X[ind_training].iloc[a].values]
     k = GPy.kern.RBF(input_dim=2, lengthscale=lengthscale, variance=variance)
-    model = GPy.models.SparseGPRegression(X_fixed_train, y_fixed_train, kernel=k, Z=Z)  # was soll Z??
+    model = GPy.models.SparseGPRegression(X_fixed_train, y_fixed_train, kernel=k, Z=Z)
     model.name = 'POWER-EP'
     model.inference_method = PEP(alpha=alpha)
     model.Gaussian_noise.variance = lik_noise_var
@@ -60,11 +60,10 @@ def rolling_expanding_2y(M,alpha,lengthscale,variance,lik_noise_var):
          y_exp_train = np.c_[y[ind_training].values]
          y_exp_test = np.c_[y[ind_test].values]
          #fitting the model
-         np.random.seed(22)
          a = np.random.randint(0, np.shape(X_exp_train)[0], size=M)
          Z = np.c_[X[ind_training].iloc[a].values]
          k = GPy.kern.RBF(input_dim=2, lengthscale=lengthscale, variance=variance)
-         model_exp = GPy.models.SparseGPRegression(X_exp_train, y_exp_train, kernel=k, Z = Z)  # was soll Z??
+         model_exp = GPy.models.SparseGPRegression(X_exp_train, y_exp_train, kernel=k, Z = Z)
          model_exp.name = 'POWER-EP'
          model_exp.inference_method = PEP(alpha=alpha)
          model_exp.Gaussian_noise.variance = lik_noise_var
@@ -99,12 +98,11 @@ def rolling_2y(M,alpha,lengthscale,variance,lik_noise_var):
         y_roll_train = np.c_[y[ind_training].values]
         y_roll_test = np.c_[y[ind_test].values]
         #fitting the model
-        np.random.seed(22)
         a = np.random.randint(0, np.shape(X_roll_train)[0], size=M)
         Z = np.c_[X[ind_training].iloc[a].values]
         # model just like in test_PEP
         k = GPy.kern.RBF(input_dim=2, lengthscale=lengthscale, variance=variance)
-        model_roll = GPy.models.SparseGPRegression(X_roll_train, y_roll_train, kernel=k, Z = Z)  # was soll Z??
+        model_roll = GPy.models.SparseGPRegression(X_roll_train, y_roll_train, kernel=k, Z = Z)
         model_roll.name = 'POWER-EP'
         model_roll.inference_method = PEP(alpha=alpha)
         model_roll.Gaussian_noise.variance = lik_noise_var
@@ -142,11 +140,10 @@ def pred_daily(M,alpha,lengthscale,variance,lik_noise_var):
          y_d_train = np.c_[y[ind_training_daily].values]
          y_d_test = np.c_[y[ind_test_daily].values]
          #fitting the model
-         np.random.seed(22)
          a = np.random.randint(0, np.shape(X_d_train)[0], size=M)
          Z = np.c_[X[ind_training_daily].iloc[a].values]
          k = GPy.kern.RBF(input_dim=2, lengthscale=lengthscale, variance=variance)
-         model_d = GPy.models.SparseGPRegression(X_d_train, y_d_train, kernel=k,Z =Z)  # was soll Z??
+         model_d = GPy.models.SparseGPRegression(X_d_train, y_d_train, kernel=k,Z =Z)
          model_d.name = 'POWER-EP'
          model_d.inference_method = PEP(alpha=alpha)
          model_d.Gaussian_noise.variance = lik_noise_var
@@ -163,26 +160,40 @@ def pred_daily(M,alpha,lengthscale,variance,lik_noise_var):
     mae_daily = mean_absolute_error(daily_mean, daily_y_test)
     return ([daily_mean,daily_y_test,mse_daily,mae_daily])
 
+rng = np.random.default_rng(2021)
+rng.random(1212)
+d = pred_daily(1,0.25,1,1,0.2)[2:4]
+rng.random(1212)
+c = rolling_2y(10,0.5,1,1,0.2)[2:4]
+rng.random(1212)
+a = fixed_pred(50,0.25,1,1,0.2)[2:4]
+rng.random(1212)
+b = rolling_expanding_2y(10,0.25,1,1,0.2)[2:4]
+#get MSE and MAE for the different predictions
+print(a)
+print(b)
+print(c)
+print(d)
 #-----------------------
-df_fixed = pd.DataFrame()
-df_fixed["predictions"] = fixed_pred(1,0.25,1,1,0.2)[0].ravel()
-df_fixed["real_values"] = fixed_pred(1,0.25,1,1,0.2)[1].ravel()
-df_fixed.to_csv("Fixed_Predictions.csv",index = False)
+#df_fixed = pd.DataFrame()
+#df_fixed["predictions"] = fixed_pred(1,0.25,1,1,0.2)[0].ravel()
+#df_fixed["real_values"] = fixed_pred(1,0.25,1,1,0.2)[1].ravel()
+#df_fixed.to_csv("Fixed_Predictions.csv",index = False)
 
-df_exp = pd.DataFrame()
-df_exp["predictions"] = rolling_expanding_2y(10,0.25,1,1,0.2)[0]
-df_exp["real_values"] = rolling_expanding_2y(10,0.25,1,1,0.2)[1]
-df_exp.to_csv("exp_Predictions.csv",index = False)
+#df_exp = pd.DataFrame()
+#df_exp["predictions"] = rolling_expanding_2y(10,0.25,1,1,0.2)[0]
+#df_exp["real_values"] = rolling_expanding_2y(10,0.25,1,1,0.2)[1]
+#df_exp.to_csv("exp_Predictions.csv",index = False)
 
-df_roll = pd.DataFrame()
-df_roll["predictions"] = rolling_2y(50,0.5,1,1,0.2)[0]
-df_roll["real_values"] = rolling_2y(50,0.5,1,1,0.2)[1]
-df_exp.to_csv("rolling_Predictions.csv",index = False)
+#df_roll = pd.DataFrame()
+#df_roll["predictions"] = rolling_2y(50,0.5,1,1,0.2)[0]
+#df_roll["real_values"] = rolling_2y(50,0.5,1,1,0.2)[1]
+#df_roll.to_csv("rolling_Predictions.csv",index = False)
 
-df_days = pd.DataFrame()
-df_days["predictions"] = rolling_2y(10,0.5,1,1,0.2)[0]
-df_days["real_values"] = rolling_2y(10,0.5,1,1,0.2)[1]
-df_days.to_csv("daily_Predictions.csv",index = False)
+#df_days = pd.DataFrame()
+#df_days["predictions"] = pred_daily(10,0.5,1,1,0.2)[0]
+#df_days["real_values"] = pred_daily(10,0.5,1,1,0.2)[1]
+#df_days.to_csv("daily_Predictions.csv",index = False)
 
 
 #good results:
